@@ -60,10 +60,10 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);back
 .moderation-small{font-size:12px!important;color:#7b847f!important;margin-top:12px!important}
 @media(min-width:481px){body{background:#eef2ef}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
+.balance-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:99998;align-items:center;justify-content:center;padding:20px}.balance-box{width:100%;max-width:390px;background:#fff;border-radius:20px;padding:24px 20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2)}.balance-icon{font-size:40px;margin-bottom:10px}.balance-box h2{margin:0 0 8px;font-size:21px;color:#17221c}.balance-box p{margin:0 0 18px;font-size:13px;line-height:1.55;color:#68736d}.balance-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.balance-actions a,.balance-actions button{display:flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:11px;padding:13px;font-weight:800;font-size:13px;cursor:pointer}.wallet-link{background:#16834b;color:#fff}.close-balance{background:#eef3f0;color:#53605a}</style>
 </head>
 <body>
-<div id="app"><header><div class="wrap"><div class="head"><a class="back" href="index.html">← Back</a><div><div class="logo">StudTask</div><div class="sub">Post a task for students and campuses</div></div></div></div></header><main><div class="card"><p class="intro">Tell students what you need done. Your task will be reviewed before it becomes visible to other users.</p><div class="context" id="taskContext"></div><label for="title">What do you need done?</label><input type="text" id="title" placeholder="e.g. Print & Deliver Assignment" maxlength="120"><label for="description">Describe the task</label><textarea id="description" placeholder="Give runners enough information to understand what you need..." maxlength="3000"></textarea><label for="category">Category</label><select id="category"><option value="">Select a category</option><option>Errands</option><option>Physical Help</option><option>Digital Work</option><option>Creative Skills</option><option>Academic Support</option><option>Campus Services</option><option>Other</option></select><label for="location">Where should it be done?</label><input type="text" id="location" placeholder="e.g. Main Campus" maxlength="150"><div class="row"><div><label for="budget">Budget (₦)</label><input type="number" id="budget" placeholder="1000" min="1" step="1" inputmode="numeric"></div><div><label for="deadline">Deadline</label><input type="datetime-local" id="deadline"></div></div><label>Attach PDF files</label><div class="attachment-box"><div class="attachment-title">📎 Add task files</div><div class="attachment-help">Add PDFs that runners need for the task.<br>Maximum 10 MB per PDF.</div><input type="file" id="taskFiles" class="file-input" accept="application/pdf,.pdf" multiple><div id="selectedFiles" class="selected-files"></div></div><button class="post-button" id="postButton" type="button">POST TASK</button><div class="note">🛡️ New tasks are reviewed before they become visible to other users. You'll be able to see your task in My Tasks while it is awaiting approval.</div></div></main></div>
+<div id="app"><header><div class="wrap"><div class="head"><a class="back" href="index.html">← Back</a><div><div class="logo">StudTask</div><div class="sub">Post a task for students and campuses</div></div></div></div></header><main><div class="card"><p class="intro">Tell students what you need done. Your task will be reviewed before it becomes visible to other users.</p><div class="context" id="taskContext"></div><label for="title">What do you need done?</label><input type="text" id="title" placeholder="e.g. Print & Deliver Assignment" maxlength="120"><label for="description">Describe the task</label><textarea id="description" placeholder="Give runners enough information to understand what you need..." maxlength="3000"></textarea><label for="category">Category</label><select id="category"><option value="">Select a category</option><option>Errands</option><option>Physical Help</option><option>Digital Work</option><option>Creative Skills</option><option>Academic Support</option><option>Campus Services</option><option>Other</option></select><label for="location">Where should it be done?</label><input type="text" id="location" placeholder="e.g. Main Campus" maxlength="150"><div class="row"><div><label for="budget">Budget (₦)</label><input type="number" id="budget" placeholder="1000" min="1" step="1" inputmode="numeric"></div><div><label for="deadline">Deadline</label><input type="datetime-local" id="deadline"></div></div><label>Attach PDF files</label><div class="attachment-box"><div class="attachment-title">📎 Add task files</div><div class="attachment-help">Add PDFs that runners need for the task.<br>Maximum 10 MB per PDF.</div><input type="file" id="taskFiles" class="file-input" accept="application/pdf,.pdf" multiple><div id="selectedFiles" class="selected-files"></div></div><button class="post-button" id="postButton" type="button">POST TASK</button><div class="note">🛡️ New tasks are reviewed before they become visible to other users. You'll be able to see your task in My Tasks while it is awaiting approval.</div></div></main></div><div class="balance-modal" id="balanceModal" role="dialog" aria-modal="true" aria-labelledby="balanceTitle"><div class="balance-box"><div class="balance-icon">💳</div><h2 id="balanceTitle">Insufficient balance</h2><p>Your wallet balance isn’t enough to fund this task. Head to your Wallet to add funds, then come back and post the task.</p><div class="balance-actions"><button class="close-balance" type="button" onclick="closeBalanceModal()">CLOSE</button><a class="wallet-link" href="wallet.html">GO TO WALLET</a></div></div></div>
 <nav aria-label="Main navigation"><div class="navin"><a href="index.html"><span>⌂</span>Home</a><a href="my-tasks.html"><span>✓</span>My Tasks</a><a href="post-task.html" class="active"><span>＋</span>Post</a><a href="alerts.html"><span>🔔</span>Alerts</a><a href="profile.html"><span>♙</span>Profile</a></div></nav>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -266,6 +266,7 @@ fileInput.addEventListener("change", () => {
   renderSelectedFiles();
 });
 
+function showInsufficientBalanceModal(){const modal=document.getElementById('balanceModal');if(modal)modal.style.display='flex'}function closeBalanceModal(){const modal=document.getElementById('balanceModal');if(modal)modal.style.display='none'}
 async function postTask() {
   if (button.disabled) return;
 
@@ -455,10 +456,12 @@ async function postTask() {
       }
     }
 
-    alert(
-      "Something went wrong.\n\n" +
-      ("Something went wrong. Please try again." || "Could not post task.")
-    );
+    const errorText = String(error?.message || "").toUpperCase();
+    if (errorText.includes("INSUFFICIENT_BALANCE")) {
+      showInsufficientBalanceModal();
+    } else {
+      alert("Something went wrong. Please try again.");
+    }
 
     button.disabled = false;
     button.textContent = "POST TASK";
